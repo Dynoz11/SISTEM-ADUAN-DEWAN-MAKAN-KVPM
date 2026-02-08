@@ -198,7 +198,16 @@ async function initFirebaseSync(){
     return;
   }
   try{
-    if(!firebase.apps || !firebase.apps.length){
+    const desiredUrl = firebaseConfig.databaseURL;
+    let needsInit = !firebase.apps || !firebase.apps.length;
+    if(!needsInit && firebase.apps[0]){
+      const currentUrl = firebase.apps[0].options && firebase.apps[0].options.databaseURL;
+      if(currentUrl && desiredUrl && currentUrl !== desiredUrl){
+        try{ await firebase.apps[0].delete(); }catch(e){}
+        needsInit = true;
+      }
+    }
+    if(needsInit){
       firebase.initializeApp(firebaseConfig);
     }
     firebaseDb = firebase.database();
