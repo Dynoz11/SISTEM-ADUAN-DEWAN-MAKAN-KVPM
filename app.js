@@ -20,16 +20,16 @@ const SS = createStore('session');
 /* -------------------------
    Firebase Realtime Database (sync)
    ------------------------- */
-const firebaseDatabaseURL = "https://sistem-ipeey-default-rtdb.asia-southeast1.firebasedatabase.app";
+const firebaseDatabaseURL = "https://sistemipeey-default-rtdb.asia-southeast1.firebasedatabase.app";
 const firebaseConfig = {
-  apiKey: "AIzaSyBpW-jzqXMLLI0wAJnaLAj-759Ced_56rA",
-  authDomain: "sistem-ipeey.firebaseapp.com",
+  apiKey: "AIzaSyDpyKEbENXXAc_G2Kjf4jLkkl7NUA3IsFE",
+  authDomain: "sistemipeey.firebaseapp.com",
   databaseURL: firebaseDatabaseURL,
-  projectId: "sistem-ipeey",
-  storageBucket: "sistem-ipeey.firebasestorage.app",
-  messagingSenderId: "268990232717",
-  appId: "1:268990232717:web:e2d2c05105b4b948044ac4",
-  measurementId: "G-H40EQGY7VZ"
+  projectId: "sistemipeey",
+  storageBucket: "sistemipeey.firebasestorage.app",
+  messagingSenderId: "830500095662",
+  appId: "1:830500095662:web:b99eb139c704f8a42ecf3f",
+  measurementId: "G-C9KWXPY4J0"
 };
 
 const firebaseRootPath = 'sistemAduanDewanMakan';
