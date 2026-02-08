@@ -33,6 +33,7 @@ const firebaseConfig = {
 };
 
 const firebaseRootPath = 'sistemAduanDewanMakan';
+const firebaseAppName = 'dmApp';
 const firebaseKeys = new Set([
   'aduanList',
   'customStudents',
@@ -199,18 +200,19 @@ async function initFirebaseSync(){
   }
   try{
     const desiredUrl = firebaseConfig.databaseURL;
-    let needsInit = !firebase.apps || !firebase.apps.length;
-    if(!needsInit && firebase.apps[0]){
-      const currentUrl = firebase.apps[0].options && firebase.apps[0].options.databaseURL;
-      if(currentUrl && desiredUrl && currentUrl !== desiredUrl){
-        try{ await firebase.apps[0].delete(); }catch(e){}
-        needsInit = true;
+    const apps = Array.isArray(firebase.apps) ? firebase.apps.slice() : [];
+    for(const app of apps){
+      const currentUrl = app?.options?.databaseURL;
+      if(!currentUrl || (desiredUrl && currentUrl !== desiredUrl) || app.name === '[DEFAULT]'){
+        try{ await app.delete(); }catch(e){}
       }
     }
-    if(needsInit){
-      firebase.initializeApp(firebaseConfig);
+    let app = null;
+    try{ app = firebase.app(firebaseAppName); }catch(e){ app = null; }
+    if(!app){
+      app = firebase.initializeApp(firebaseConfig, firebaseAppName);
     }
-    firebaseDb = firebase.database();
+    firebaseDb = firebase.database(app);
   }catch(err){
     console.warn('Firebase init gagal', err);
     return;
