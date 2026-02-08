@@ -677,6 +677,7 @@ const ADMIN_ACCOUNTS = {
   warden: { pass:'12345', role:'Warden' },
   'pihak pengurusan asrama': { pass:'12345', role:'Pengurusan Asrama' }
 };
+const MAX_IMAGE_BYTES = 400 * 1024;
 
 /* -------------------------
    Storage init
@@ -981,6 +982,10 @@ if(complaintForm){
 
     const fileInput = safeGet('image');
     const file = fileInput?.files?.[0];
+    if(file && file.size > MAX_IMAGE_BYTES){
+      saveAduan(null, 'Gambar terlalu besar. Aduan dihantar tanpa gambar.');
+      return;
+    }
     if(file){
       const reader = new FileReader();
       reader.onload = function(){ saveAduan(reader.result); };
@@ -990,7 +995,7 @@ if(complaintForm){
   });
 }
 
-function saveAduan(imageData){
+function saveAduan(imageData, notice){
   const session = JSON.parse(SS.getItem('student_logged') || 'null');
   const obj = {
     name: session?.name || (safeGet('name')?.value || 'Anon'),
@@ -1006,11 +1011,34 @@ function saveAduan(imageData){
     remark: ''
   };
   aduanList.unshift(obj);
-  LS.setItem('aduanList', JSON.stringify(aduanList));
+  let saved = false;
+  try{
+    LS.setItem('aduanList', JSON.stringify(aduanList));
+    saved = true;
+  }catch(err){
+    console.warn('Simpan aduan gagal', err);
+  }
+  if(!saved && obj.image){
+    obj.image = null;
+    aduanList[0] = obj;
+    try{
+      LS.setItem('aduanList', JSON.stringify(aduanList));
+      saved = true;
+      if(!notice) notice = 'Aduan dihantar tanpa gambar (storan penuh).';
+    }catch(err){
+      console.warn('Simpan aduan tanpa gambar gagal', err);
+    }
+  }
+  if(!saved){
+    aduanList.shift();
+    const statusEl = safeGet('statusMsg');
+    if(statusEl) statusEl.innerText = 'Gagal simpan aduan. Storan penuh atau disekat.';
+    return;
+  }
   if(complaintForm) complaintForm.reset();
   applyStudentSession();
   const statusEl = safeGet('statusMsg');
-  if(statusEl) statusEl.innerText = 'Aduan dihantar.';
+  if(statusEl) statusEl.innerText = notice || 'Aduan dihantar.';
   renderComplaints();
   renderAdminList();
   renderRatingAnalytics();
